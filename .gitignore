@@ -1,4 +1,4 @@
-# ---------- Sistema operativo ----------
+# ---------- Operating system ----------
 .DS_Store
 Thumbs.db
 
@@ -11,7 +11,7 @@ Thumbs.db
 .settings/
 .factorypath
 
-# ---------- Java / Maven: salida de compilacion ----------
+# ---------- Java / Maven: build output ----------
 target/
 
 # ---------- Node / Angular ----------
@@ -21,10 +21,10 @@ dist/
 coverage/
 npm-debug.log*
 
-# ---------- Credenciales y entorno local ----------
+# ---------- Credentials and local environment ----------
 .env
 .env.local
 
-# ---------- Logs y temporales ----------
+# ---------- Logs and temporary files ----------
 *.log
 *.tmp

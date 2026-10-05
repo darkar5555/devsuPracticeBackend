@@ -12,7 +12,7 @@
 	<artifactId>devsu-practice-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>devsuPracticeBackend</name>
-	<description>API REST Sistema Bancario - Prueba tecnica Devsu</description>
+	<description>Test for Devsu</description>
 	<url/>
 	<licenses>
 		<license/>

@@ -4,7 +4,7 @@ services:
     container_name: devsu-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-devsu_banco}
+      POSTGRES_DB: ${POSTGRES_DB:-devsu_bank}
       POSTGRES_USER: ${POSTGRES_USER:-devsu}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-devsu123}
     ports:
@@ -13,7 +13,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ../BaseDatos.sql:/docker-entrypoint-initdb.d/01-BaseDatos.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -h localhost -U ${POSTGRES_USER:-devsu} -d ${POSTGRES_DB:-devsu_banco}"]
+      test: ["CMD-SHELL", "pg_isready -h localhost -U ${POSTGRES_USER:-devsu} -d ${POSTGRES_DB:-devsu_bank}"]
       interval: 10s
       timeout: 5s
       retries: 5
