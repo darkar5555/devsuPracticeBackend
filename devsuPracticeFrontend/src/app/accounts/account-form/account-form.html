@@ -1,0 +1,65 @@
+<header class="page-header">
+  <h1 class="page-title">{{ isEdit ? 'Editar cuenta' : 'Nueva cuenta' }}</h1>
+</header>
+
+<form class="form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+  <div class="form-grid">
+    <label class="form-field">
+      <span class="form-label">Número de cuenta</span>
+      <input class="form-input" type="text" formControlName="accountNumber" />
+      @if (showError(form.controls.accountNumber)) {
+        <small class="form-error">{{ validationMessage(form.controls.accountNumber) }}</small>
+      }
+    </label>
+
+    <label class="form-field">
+      <span class="form-label">Tipo de cuenta</span>
+      <select class="form-input" formControlName="accountType">
+        <option value="" disabled>Seleccione</option>
+        @for (type of accountTypes; track type) {
+          <option [value]="type">{{ accountTypeLabels[type] }}</option>
+        }
+      </select>
+      @if (showError(form.controls.accountType)) {
+        <small class="form-error">{{ validationMessage(form.controls.accountType) }}</small>
+      }
+    </label>
+
+    <label class="form-field">
+      <span class="form-label">Saldo inicial</span>
+      <input
+        class="form-input"
+        type="number"
+        min="0"
+        step="0.01"
+        formControlName="initialBalance"
+      />
+      @if (showError(form.controls.initialBalance)) {
+        <small class="form-error">{{ validationMessage(form.controls.initialBalance) }}</small>
+      }
+    </label>
+
+    <label class="form-field">
+      <span class="form-label">Cliente</span>
+      <select class="form-input" formControlName="customerId">
+        <option [ngValue]="null" disabled>Seleccione</option>
+        @for (customer of customers; track customer.id) {
+          <option [ngValue]="customer.id">{{ customer.name }}</option>
+        }
+      </select>
+      @if (showError(form.controls.customerId)) {
+        <small class="form-error">{{ validationMessage(form.controls.customerId) }}</small>
+      }
+    </label>
+
+    <label class="form-field form-field-checkbox">
+      <input type="checkbox" formControlName="status" />
+      <span class="form-label">Cuenta activa</span>
+    </label>
+  </div>
+
+  <div class="form-actions">
+    <a class="button" routerLink="/cuentas">Cancelar</a>
+    <button class="button button-primary" type="submit">Guardar</button>
+  </div>
+</form>

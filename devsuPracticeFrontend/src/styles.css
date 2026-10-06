@@ -1,7 +1,13 @@
 :root {
   --color-primary: #1f4e79;
+  --color-primary-dark: #163a5a;
+  --color-danger: #b23a3a;
+  --color-success: #2e7d32;
   --color-text: #1f2933;
+  --color-muted: #6b7280;
+  --color-border: #d9dee3;
   --color-background: #f4f6f8;
+  --color-surface: #ffffff;
   --radius: 6px;
 }
 
@@ -35,6 +41,7 @@ p {
   margin: 0;
 }
 
+/* Page structure */
 .page-header {
   display: flex;
   flex-wrap: wrap;
@@ -46,6 +53,227 @@ p {
 
 .page-title {
   font-size: 1.5rem;
+}
+
+.toolbar {
+  margin-bottom: 1rem;
+}
+
+/* Buttons */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--color-background);
+}
+
+.button-primary {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.button-primary:hover {
+  background: var(--color-primary-dark);
+}
+
+.button-danger {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.button-small {
+  padding: 0.25rem 0.6rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Tables */
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table th {
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-muted);
+  background: #fafbfc;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.table .numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.table .actions {
+  text-align: right;
+}
+
+.table .actions .button + .button {
+  margin-left: 0.5rem;
+}
+
+.empty-state {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--color-muted);
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 0.125rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.badge-active {
+  background: #e6f4ea;
+  color: var(--color-success);
+}
+
+.badge-inactive {
+  background: #ededed;
+  color: var(--color-muted);
+}
+
+/* Forms */
+.form {
+  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.form-field-checkbox {
+  flex-direction: row;
+  align-items: center;
+  align-self: end;
+  gap: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.form-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.form-input {
+  min-width: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  font: inherit;
+}
+
+.form-input:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.form-input.ng-invalid.ng-touched {
+  border-color: var(--color-danger);
+}
+
+.form-error {
+  font-size: 0.8125rem;
+  color: var(--color-danger);
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+/* Cards (report) */
+.card {
+  margin-top: 1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.card-title {
+  font-size: 1.125rem;
+}
+
+.card-subtitle {
+  color: var(--color-muted);
+}
+
+.summary-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.summary-list dt {
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+}
+
+.summary-list dd {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 @media (max-width: 767px) {

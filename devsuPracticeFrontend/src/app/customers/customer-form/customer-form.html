@@ -1,0 +1,83 @@
+<header class="page-header">
+  <h1 class="page-title">{{ isEdit ? 'Editar cliente' : 'Nuevo cliente' }}</h1>
+</header>
+
+<form class="form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+  <div class="form-grid">
+    <label class="form-field">
+      <span class="form-label">Nombre</span>
+      <input class="form-input" type="text" formControlName="name" />
+      @if (showError(form.controls.name)) {
+        <small class="form-error">{{ validationMessage(form.controls.name) }}</small>
+      }
+    </label>
+
+    <label class="form-field">
+      <span class="form-label">Identificación</span>
+      <input class="form-input" type="text" formControlName="identification" />
+      @if (showError(form.controls.identification)) {
+        <small class="form-error">{{ validationMessage(form.controls.identification) }}</small>
+      }
+    </label>
+
+    <label class="form-field">
+      <span class="form-label">Género</span>
+      <select class="form-input" formControlName="gender">
+        <option value="" disabled>Seleccione</option>
+        @for (gender of genders; track gender) {
+          <option [value]="gender">{{ genderLabels[gender] }}</option>
+        }
+      </select>
+      @if (showError(form.controls.gender)) {
+        <small class="form-error">{{ validationMessage(form.controls.gender) }}</small>
+      }
+    </label>
+
+    <label class="form-field">
+      <span class="form-label">Edad</span>
+      <input class="form-input" type="number" min="0" max="150" formControlName="age" />
+      @if (showError(form.controls.age)) {
+        <small class="form-error">{{ validationMessage(form.controls.age) }}</small>
+      }
+    </label>
+
+    <label class="form-field">
+      <span class="form-label">Teléfono</span>
+      <input class="form-input" type="tel" formControlName="phone" />
+      @if (showError(form.controls.phone)) {
+        <small class="form-error">{{ validationMessage(form.controls.phone) }}</small>
+      }
+    </label>
+
+    <label class="form-field">
+      <span class="form-label">Dirección</span>
+      <input class="form-input" type="text" formControlName="address" />
+      @if (showError(form.controls.address)) {
+        <small class="form-error">{{ validationMessage(form.controls.address) }}</small>
+      }
+    </label>
+
+    <label class="form-field">
+      <span class="form-label">{{ isEdit ? 'Nueva contraseña (opcional)' : 'Contraseña' }}</span>
+      <input
+        class="form-input"
+        type="password"
+        formControlName="password"
+        autocomplete="new-password"
+      />
+      @if (showError(form.controls.password)) {
+        <small class="form-error">{{ validationMessage(form.controls.password) }}</small>
+      }
+    </label>
+
+    <label class="form-field form-field-checkbox">
+      <input type="checkbox" formControlName="status" />
+      <span class="form-label">Cliente activo</span>
+    </label>
+  </div>
+
+  <div class="form-actions">
+    <a class="button" routerLink="/clientes">Cancelar</a>
+    <button class="button button-primary" type="submit">Guardar</button>
+  </div>
+</form>

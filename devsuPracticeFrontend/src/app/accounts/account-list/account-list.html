@@ -1,3 +1,52 @@
 <header class="page-header">
   <h1 class="page-title">Cuentas</h1>
+  <a class="button button-primary" routerLink="/cuentas/nuevo">Nuevo</a>
 </header>
+
+<div class="toolbar">
+  <app-search-box placeholder="Buscar por número o cliente" (search)="searchTerm.set($event)" />
+</div>
+
+<div class="table-wrapper">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Número</th>
+        <th>Tipo</th>
+        <th class="numeric">Saldo inicial</th>
+        <th>Cliente</th>
+        <th>Estado</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (account of filteredAccounts(); track account.id) {
+        <tr>
+          <td>{{ account.accountNumber }}</td>
+          <td>{{ accountTypeLabels[account.accountType] }}</td>
+          <td class="numeric">{{ account.initialBalance | number: '1.2-2' }}</td>
+          <td>{{ account.customerName }}</td>
+          <td>
+            <span class="badge" [class]="account.status ? 'badge-active' : 'badge-inactive'">
+              {{ account.status ? 'Activa' : 'Inactiva' }}
+            </span>
+          </td>
+          <td class="actions">
+            <a class="button button-small" [routerLink]="['/cuentas', account.id]">Editar</a>
+            <button
+              class="button button-small button-danger"
+              type="button"
+              (click)="remove(account)"
+            >
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td class="empty-state" colspan="6">No hay cuentas para mostrar.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

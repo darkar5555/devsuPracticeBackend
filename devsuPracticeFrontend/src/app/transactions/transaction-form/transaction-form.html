@@ -1,0 +1,49 @@
+<header class="page-header">
+  <h1 class="page-title">{{ isEdit ? 'Editar movimiento' : 'Nuevo movimiento' }}</h1>
+</header>
+
+<form class="form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+  <div class="form-grid">
+    <label class="form-field">
+      <span class="form-label">Cuenta</span>
+      <select class="form-input" formControlName="accountNumber">
+        <option value="" disabled>Seleccione</option>
+        @for (account of accounts; track account.id) {
+          <option [value]="account.accountNumber">
+            {{ account.accountNumber }} · {{ accountTypeLabels[account.accountType] }} ·
+            {{ account.customerName }}
+          </option>
+        }
+      </select>
+      @if (showError(form.controls.accountNumber)) {
+        <small class="form-error">{{ validationMessage(form.controls.accountNumber) }}</small>
+      }
+    </label>
+
+    <label class="form-field">
+      <span class="form-label">Tipo de movimiento</span>
+      <select class="form-input" formControlName="transactionType">
+        <option value="" disabled>Seleccione</option>
+        @for (type of transactionTypes; track type) {
+          <option [value]="type">{{ transactionTypeLabels[type] }}</option>
+        }
+      </select>
+      @if (showError(form.controls.transactionType)) {
+        <small class="form-error">{{ validationMessage(form.controls.transactionType) }}</small>
+      }
+    </label>
+
+    <label class="form-field">
+      <span class="form-label">Valor</span>
+      <input class="form-input" type="number" min="0.01" step="0.01" formControlName="amount" />
+      @if (showError(form.controls.amount)) {
+        <small class="form-error">{{ validationMessage(form.controls.amount) }}</small>
+      }
+    </label>
+  </div>
+
+  <div class="form-actions">
+    <a class="button" routerLink="/movimientos">Cancelar</a>
+    <button class="button button-primary" type="submit">Guardar</button>
+  </div>
+</form>
