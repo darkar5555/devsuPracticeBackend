@@ -14,3 +14,13 @@ export interface Account {
   customerId: number;
   customerName: string;
 }
+
+export interface AccountRequest {
+  accountNumber: string;
+  accountType: AccountType;
+  initialBalance: number;
+  status: boolean;
+  customerId: number;
+}
+
+export type AccountUpdateRequest = Omit<AccountRequest, 'customerId'>;

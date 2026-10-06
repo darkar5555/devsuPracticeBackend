@@ -7,6 +7,10 @@
   <app-search-box placeholder="Buscar por número de cuenta" (search)="searchTerm.set($event)" />
 </div>
 
+@if (errorMessage()) {
+  <p class="alert alert-error">{{ errorMessage() }}</p>
+}
+
 <div class="table-wrapper">
   <table class="table">
     <thead>
@@ -42,7 +46,9 @@
         </tr>
       } @empty {
         <tr>
-          <td class="empty-state" colspan="6">No hay movimientos para mostrar.</td>
+          <td class="empty-state" colspan="6">
+            {{ loading() ? 'Cargando...' : 'No hay movimientos para mostrar.' }}
+          </td>
         </tr>
       }
     </tbody>

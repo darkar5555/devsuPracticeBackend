@@ -1,7 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { Gender, GENDER_LABELS } from '../../models/customer';
+import { apiErrorMessage } from '../../api/api-error';
+import { CustomerApi } from '../../api/customer-api';
+import { CustomerRequest, Gender, GENDER_LABELS } from '../../models/customer';
 import { showError, validationMessage } from '../../shared/forms/validation-message';
 
 @Component({
@@ -9,15 +11,18 @@ import { showError, validationMessage } from '../../shared/forms/validation-mess
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './customer-form.html',
 })
-export class CustomerForm {
+export class CustomerForm implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly customerApi = inject(CustomerApi);
 
   protected readonly genderLabels = GENDER_LABELS;
   protected readonly genders = Object.keys(GENDER_LABELS) as Gender[];
-  protected readonly customerId = this.route.snapshot.paramMap.get('id');
+  protected readonly customerId = this.readIdFromRoute();
   protected readonly isEdit = this.customerId !== null;
+  protected readonly errorMessage = signal('');
+  protected readonly saving = signal(false);
 
   protected readonly form = this.formBuilder.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(100)]],
@@ -36,11 +41,47 @@ export class CustomerForm {
   protected showError = showError;
   protected validationMessage = validationMessage;
 
+  ngOnInit() {
+    if (this.customerId === null) {
+      return;
+    }
+    this.customerApi.get(this.customerId).subscribe({
+      next: (customer) => this.form.patchValue(customer),
+      error: (error) => this.errorMessage.set(apiErrorMessage(error)),
+    });
+  }
+
   protected save() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
-    this.router.navigate(['/clientes']);
+    const request = this.toRequest();
+    const call =
+      this.customerId === null
+        ? this.customerApi.create(request)
+        : this.customerApi.update(this.customerId, {
+            ...request,
+            password: request.password || undefined,
+          });
+
+    this.saving.set(true);
+    call.subscribe({
+      next: () => this.router.navigate(['/clientes']),
+      error: (error) => {
+        this.errorMessage.set(apiErrorMessage(error));
+        this.saving.set(false);
+      },
+    });
+  }
+
+  private toRequest(): CustomerRequest {
+    const value = this.form.getRawValue();
+    return { ...value, gender: value.gender as Gender, age: value.age as number };
+  }
+
+  private readIdFromRoute(): number | null {
+    const id = this.route.snapshot.paramMap.get('id');
+    return id === null ? null : Number(id);
   }
 }

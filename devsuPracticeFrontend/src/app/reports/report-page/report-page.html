@@ -8,7 +8,7 @@
       <span class="form-label">Cliente</span>
       <select class="form-input" formControlName="customerId">
         <option [ngValue]="null" disabled>Seleccione</option>
-        @for (customer of customers; track customer.id) {
+        @for (customer of customers(); track customer.id) {
           <option [ngValue]="customer.id">{{ customer.name }}</option>
         }
       </select>
@@ -38,18 +38,29 @@
     <p class="form-error">La fecha inicial no puede ser posterior a la fecha final.</p>
   }
 
+  @if (errorMessage()) {
+    <p class="alert alert-error">{{ errorMessage() }}</p>
+  }
+
   <div class="form-actions">
-    <button class="button button-primary" type="submit">Generar</button>
+    <button class="button button-primary" type="submit" [disabled]="generating()">Generar</button>
   </div>
 </form>
 
 @if (statement(); as report) {
   <section class="card">
-    <h2 class="card-title">{{ report.customer.name }}</h2>
-    <p class="card-subtitle">
-      Identificación {{ report.customer.identification }} · Del
-      {{ report.from | date: 'dd/MM/yyyy' }} al {{ report.to | date: 'dd/MM/yyyy' }}
-    </p>
+    <div class="card-header">
+      <div>
+        <h2 class="card-title">{{ report.customer.name }}</h2>
+        <p class="card-subtitle">
+          Identificación {{ report.customer.identification }} · Del
+          {{ report.from | date: 'dd/MM/yyyy' }} al {{ report.to | date: 'dd/MM/yyyy' }}
+        </p>
+      </div>
+      @if (report.pdfBase64) {
+        <button class="button" type="button" (click)="downloadPdf(report)">Descargar PDF</button>
+      }
+    </div>
   </section>
 
   @for (account of report.accounts; track account.accountNumber) {

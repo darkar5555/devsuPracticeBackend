@@ -59,6 +59,20 @@ p {
   margin-bottom: 1rem;
 }
 
+/* Alerts */
+.alert {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid;
+  border-radius: var(--radius);
+}
+
+.alert-error {
+  background: #fbeaea;
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
 /* Buttons */
 .button {
   display: inline-flex;
@@ -248,6 +262,14 @@ p {
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   background: var(--color-surface);
+}
+
+.card-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
 .card-title {

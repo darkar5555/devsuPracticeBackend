@@ -76,8 +76,12 @@
     </label>
   </div>
 
+  @if (errorMessage()) {
+    <p class="alert alert-error">{{ errorMessage() }}</p>
+  }
+
   <div class="form-actions">
     <a class="button" routerLink="/clientes">Cancelar</a>
-    <button class="button button-primary" type="submit">Guardar</button>
+    <button class="button button-primary" type="submit" [disabled]="saving()">Guardar</button>
   </div>
 </form>

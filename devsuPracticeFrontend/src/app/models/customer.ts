@@ -16,3 +16,18 @@ export interface Customer {
   phone: string;
   status: boolean;
 }
+
+export interface CustomerRequest {
+  name: string;
+  gender: Gender;
+  age: number;
+  identification: string;
+  address: string;
+  phone: string;
+  password: string;
+  status: boolean;
+}
+
+export interface CustomerUpdateRequest extends Omit<CustomerRequest, 'password'> {
+  password?: string;
+}

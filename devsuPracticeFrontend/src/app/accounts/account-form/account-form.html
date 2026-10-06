@@ -43,7 +43,7 @@
       <span class="form-label">Cliente</span>
       <select class="form-input" formControlName="customerId">
         <option [ngValue]="null" disabled>Seleccione</option>
-        @for (customer of customers; track customer.id) {
+        @for (customer of customers(); track customer.id) {
           <option [ngValue]="customer.id">{{ customer.name }}</option>
         }
       </select>
@@ -58,8 +58,12 @@
     </label>
   </div>
 
+  @if (errorMessage()) {
+    <p class="alert alert-error">{{ errorMessage() }}</p>
+  }
+
   <div class="form-actions">
     <a class="button" routerLink="/cuentas">Cancelar</a>
-    <button class="button button-primary" type="submit">Guardar</button>
+    <button class="button button-primary" type="submit" [disabled]="saving()">Guardar</button>
   </div>
 </form>

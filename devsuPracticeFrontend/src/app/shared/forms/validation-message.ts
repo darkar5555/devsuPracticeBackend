@@ -1,6 +1,6 @@
 import { AbstractControl } from '@angular/forms';
 
-// Validations for form and we use it to display to the user.
+// Validationsfor the form
 export function validationMessage(control: AbstractControl | null): string {
   const errors = control?.errors;
   if (!errors) {

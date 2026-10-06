@@ -8,7 +8,7 @@
       <span class="form-label">Cuenta</span>
       <select class="form-input" formControlName="accountNumber">
         <option value="" disabled>Seleccione</option>
-        @for (account of accounts; track account.id) {
+        @for (account of accounts(); track account.id) {
           <option [value]="account.accountNumber">
             {{ account.accountNumber }} · {{ accountTypeLabels[account.accountType] }} ·
             {{ account.customerName }}
@@ -42,8 +42,12 @@
     </label>
   </div>
 
+  @if (errorMessage()) {
+    <p class="alert alert-error">{{ errorMessage() }}</p>
+  }
+
   <div class="form-actions">
     <a class="button" routerLink="/movimientos">Cancelar</a>
-    <button class="button button-primary" type="submit">Guardar</button>
+    <button class="button button-primary" type="submit" [disabled]="saving()">Guardar</button>
   </div>
 </form>
