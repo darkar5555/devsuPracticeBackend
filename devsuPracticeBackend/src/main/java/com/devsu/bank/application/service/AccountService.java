@@ -43,16 +43,7 @@ public class AccountService {
     }
 
     public Account update(Long id, Account changes) {
-        Account account = getAccount(id);
-        if (!account.getAccountNumber().equals(changes.getAccountNumber())) {
-            ensureAccountNumberIsFree(changes.getAccountNumber());
-        }
-        ensureInitialBalanceCanChange(account, changes.getInitialBalance());
-        account.setAccountNumber(changes.getAccountNumber());
-        account.setAccountType(changes.getAccountType());
-        account.setInitialBalance(changes.getInitialBalance());
-        account.setStatus(changes.getStatus());
-        return accountRepository.save(account);
+        return patch(id, changes);
     }
 
     public Account patch(Long id, Account changes) {

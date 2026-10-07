@@ -36,21 +36,7 @@ public class CustomerService {
     }
 
     public Customer update(Long id, Customer changes) {
-        Customer customer = getCustomer(id);
-        if (!customer.getIdentification().equals(changes.getIdentification())) {
-            ensureIdentificationIsFree(changes.getIdentification());
-        }
-        customer.setName(changes.getName());
-        customer.setGender(changes.getGender());
-        customer.setAge(changes.getAge());
-        customer.setIdentification(changes.getIdentification());
-        customer.setAddress(changes.getAddress());
-        customer.setPhone(changes.getPhone());
-        customer.setStatus(changes.getStatus());
-        if (changes.getPassword() != null && !changes.getPassword().isBlank()) {
-            customer.setPassword(passwordHasher.hash(changes.getPassword()));
-        }
-        return customerRepository.save(customer);
+        return patch(id, changes);
     }
 
     public Customer patch(Long id, Customer changes) {
