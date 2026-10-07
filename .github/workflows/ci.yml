@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: devsuPracticeBackend
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: devsu_bank
+          POSTGRES_USER: devsu
+          POSTGRES_PASSWORD: devsu123
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U devsu -d devsu_bank"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Load database schema
+        run: psql -h localhost -U devsu -d devsu_bank -v ON_ERROR_STOP=1 -f ../BaseDatos.sql
+        env:
+          PGPASSWORD: devsu123
+      - name: Run tests
+        run: ./mvnw -B test
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: '5432'
+
+  frontend:
+    name: Frontend tests and build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: devsuPracticeFrontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: devsuPracticeFrontend/package-lock.json
+      - run: npm ci
+      - run: npm test -- --ci
+      - run: npm run build
