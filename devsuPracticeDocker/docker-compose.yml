@@ -19,5 +19,30 @@ services:
       retries: 5
       start_period: 10s
 
+  backend:
+    build: ../devsuPracticeBackend
+    container_name: devsu-backend
+    restart: unless-stopped
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-devsu_bank}
+      POSTGRES_USER: ${POSTGRES_USER:-devsu}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-devsu123}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build: ../devsuPracticeFrontend
+    container_name: devsu-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-4200}:80"
+    depends_on:
+      - backend
+
 volumes:
   postgres_data:

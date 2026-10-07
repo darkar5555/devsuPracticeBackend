@@ -2,7 +2,9 @@ package com.devsu.bank.infrastructure.report;
 
 import com.devsu.bank.application.report.AccountStatement;
 import com.devsu.bank.application.report.AccountStatement.AccountSummary;
+import com.devsu.bank.domain.model.AccountType;
 import com.devsu.bank.domain.model.Transaction;
+import com.devsu.bank.domain.model.TransactionType;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
@@ -34,24 +36,24 @@ public class AccountStatementPdfRenderer {
         PdfWriter.getInstance(document, out);
         document.open();
 
-        document.add(new Paragraph("Account Statement", TITLE));
-        document.add(new Paragraph("Customer: " + statement.customer().getName()
+        document.add(new Paragraph("Estado de cuenta", TITLE));
+        document.add(new Paragraph("Cliente: " + statement.customer().getName()
                 + " (" + statement.customer().getIdentification() + ")", NORMAL));
-        document.add(new Paragraph("Period: " + DATE.format(statement.from())
-                + " to " + DATE.format(statement.to()), NORMAL));
+        document.add(new Paragraph("Periodo: " + DATE.format(statement.from())
+                + " al " + DATE.format(statement.to()), NORMAL));
 
         for (AccountSummary summary : statement.accounts()) {
             document.add(new Paragraph(" "));
-            document.add(new Paragraph("Account " + summary.account().getAccountNumber()
-                    + " - " + summary.account().getAccountType(), HEADING));
-            document.add(new Paragraph("Initial balance: " + money(summary.account().getInitialBalance())
-                    + "   Current balance: " + money(summary.currentBalance())
-                    + "   Credits: " + money(summary.totalCredits())
-                    + "   Debits: " + money(summary.totalDebits())
-                    + "   Status: " + (Boolean.TRUE.equals(summary.account().getStatus()) ? "active" : "inactive"),
+            document.add(new Paragraph("Cuenta " + summary.account().getAccountNumber()
+                    + " - " + label(summary.account().getAccountType()), HEADING));
+            document.add(new Paragraph("Saldo inicial: " + money(summary.account().getInitialBalance())
+                    + "   Saldo disponible: " + money(summary.currentBalance())
+                    + "   Créditos: " + money(summary.totalCredits())
+                    + "   Débitos: " + money(summary.totalDebits())
+                    + "   Estado: " + (Boolean.TRUE.equals(summary.account().getStatus()) ? "activa" : "inactiva"),
                     NORMAL));
             if (summary.transactions().isEmpty()) {
-                document.add(new Paragraph("No transactions in this period", NORMAL));
+                document.add(new Paragraph("Sin movimientos en el periodo", NORMAL));
             } else {
                 document.add(transactionsTable(summary));
             }
@@ -65,14 +67,14 @@ public class AccountStatementPdfRenderer {
         PdfPTable table = new PdfPTable(new float[] {3, 3, 2, 2});
         table.setWidthPercentage(100);
         table.setSpacingBefore(4);
-        for (String header : new String[] {"Date", "Type", "Amount", "Balance"}) {
+        for (String header : new String[] {"Fecha", "Tipo", "Valor", "Saldo"}) {
             PdfPCell cell = new PdfPCell(new Paragraph(header, TABLE_HEADER));
             cell.setHorizontalAlignment(Element.ALIGN_CENTER);
             table.addCell(cell);
         }
         for (Transaction transaction : summary.transactions()) {
             table.addCell(new Paragraph(DATE_TIME.format(transaction.getDate()), TABLE_CELL));
-            table.addCell(new Paragraph(transaction.getTransactionType().name(), TABLE_CELL));
+            table.addCell(new Paragraph(label(transaction.getTransactionType()), TABLE_CELL));
             table.addCell(amountCell(transaction.getAmount()));
             table.addCell(amountCell(transaction.getBalance()));
         }
@@ -83,6 +85,20 @@ public class AccountStatementPdfRenderer {
         PdfPCell cell = new PdfPCell(new Paragraph(money(value), TABLE_CELL));
         cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
         return cell;
+    }
+
+    private static String label(AccountType type) {
+        return switch (type) {
+            case SAVINGS -> "Ahorros";
+            case CHECKING -> "Corriente";
+        };
+    }
+
+    private static String label(TransactionType type) {
+        return switch (type) {
+            case DEPOSIT -> "Depósito";
+            case WITHDRAWAL -> "Retiro";
+        };
     }
 
     private static String money(BigDecimal value) {

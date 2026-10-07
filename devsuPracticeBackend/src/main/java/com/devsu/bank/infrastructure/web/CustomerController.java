@@ -1,6 +1,7 @@
 package com.devsu.bank.infrastructure.web;
 
 import com.devsu.bank.application.service.CustomerService;
+import com.devsu.bank.infrastructure.web.dto.CustomerPatchRequest;
 import com.devsu.bank.infrastructure.web.dto.CustomerRequest;
 import com.devsu.bank.infrastructure.web.dto.CustomerResponse;
 import com.devsu.bank.infrastructure.web.dto.CustomerUpdateRequest;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,6 +46,11 @@ public class CustomerController {
     @PutMapping("/{id}")
     public CustomerResponse update(@PathVariable("id") Long id, @Valid @RequestBody CustomerUpdateRequest request) {
         return CustomerResponse.from(customerService.update(id, request.toEntity()));
+    }
+
+    @PatchMapping("/{id}")
+    public CustomerResponse patch(@PathVariable("id") Long id, @Valid @RequestBody CustomerPatchRequest request) {
+        return CustomerResponse.from(customerService.patch(id, request.toEntity()));
     }
 
     @DeleteMapping("/{id}")

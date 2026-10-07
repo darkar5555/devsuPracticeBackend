@@ -1,6 +1,7 @@
 package com.devsu.bank.infrastructure.web;
 
 import com.devsu.bank.application.service.AccountService;
+import com.devsu.bank.infrastructure.web.dto.AccountPatchRequest;
 import com.devsu.bank.infrastructure.web.dto.AccountRequest;
 import com.devsu.bank.infrastructure.web.dto.AccountResponse;
 import com.devsu.bank.infrastructure.web.dto.AccountUpdateRequest;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,6 +46,11 @@ public class AccountController {
     @PutMapping("/{id}")
     public AccountResponse update(@PathVariable("id") Long id, @Valid @RequestBody AccountUpdateRequest request) {
         return AccountResponse.from(accountService.update(id, request.toEntity()));
+    }
+
+    @PatchMapping("/{id}")
+    public AccountResponse patch(@PathVariable("id") Long id, @Valid @RequestBody AccountPatchRequest request) {
+        return AccountResponse.from(accountService.patch(id, request.toEntity()));
     }
 
     @DeleteMapping("/{id}")

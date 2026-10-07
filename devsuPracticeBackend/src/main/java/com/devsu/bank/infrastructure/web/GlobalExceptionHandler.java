@@ -40,7 +40,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ProblemDetail handleDataIntegrity(DataIntegrityViolationException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
-                "The operation conflicts with existing data, for example a record that is still referenced");
+                "La operación entra en conflicto con datos existentes, por ejemplo un registro que aún está referenciado");
     }
 
     @Override
@@ -49,7 +49,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         Map<String, String> errors = new LinkedHashMap<>();
         ex.getBindingResult().getFieldErrors()
                 .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, "Validation failed");
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, "Datos inválidos");
         problem.setProperty("errors", errors);
         return handleExceptionInternal(ex, problem, headers, status, request);
     }
@@ -58,7 +58,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
             HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(status,
-                "Malformed JSON or invalid field value, check enum values and number formats");
+                "JSON mal formado o valor inválido; revise los valores de enumeraciones y los formatos numéricos");
         return handleExceptionInternal(ex, problem, headers, status, request);
     }
 
@@ -66,7 +66,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleNoResourceFoundException(NoResourceFoundException ex,
             HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(status,
-                "No endpoint for " + ex.getHttpMethod() + " /" + ex.getResourcePath());
+                "No existe el recurso " + ex.getHttpMethod() + " /" + ex.getResourcePath());
         return handleExceptionInternal(ex, problem, headers, status, request);
     }
 }

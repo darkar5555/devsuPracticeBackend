@@ -31,10 +31,10 @@ public class AccountStatementService {
 
     public AccountStatement generate(Long customerId, LocalDate from, LocalDate to) {
         if (from.isAfter(to)) {
-            throw new BusinessRuleException("The start date must not be after the end date");
+            throw new BusinessRuleException("La fecha inicial no puede ser posterior a la fecha final");
         }
         Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new ResourceNotFoundException("Customer " + customerId + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente " + customerId + " no encontrado"));
         LocalDateTime start = from.atStartOfDay();
         LocalDateTime end = to.atTime(LocalTime.MAX).truncatedTo(ChronoUnit.MICROS);
         List<AccountSummary> accounts = accountRepository.findByCustomerId(customerId).stream()

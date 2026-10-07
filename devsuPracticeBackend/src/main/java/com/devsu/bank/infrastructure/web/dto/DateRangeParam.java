@@ -8,7 +8,7 @@ import org.springframework.web.server.ResponseStatusException;
 public record DateRangeParam(LocalDate from, LocalDate to) {
 
     private static final String EXPECTED_FORMAT =
-            "Parameter 'fecha' must be two ISO dates separated by a comma, for example 2022-02-01,2022-02-28";
+            "El parámetro 'fecha' debe tener dos fechas ISO separadas por coma, por ejemplo 2022-02-01,2022-02-28";
 
     public static DateRangeParam parse(String value) {
         String[] parts = value == null ? new String[0] : value.split(",");

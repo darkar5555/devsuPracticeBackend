@@ -3,6 +3,7 @@ package com.devsu.bank.application.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -10,9 +11,11 @@ import static org.mockito.Mockito.when;
 import com.devsu.bank.application.port.out.AccountRepository;
 import com.devsu.bank.application.port.out.TransactionRepository;
 import com.devsu.bank.domain.exception.BusinessRuleException;
+import com.devsu.bank.domain.exception.DailyLimitExceededException;
 import com.devsu.bank.domain.exception.InsufficientBalanceException;
 import com.devsu.bank.domain.model.Account;
 import com.devsu.bank.domain.model.AccountType;
+import com.devsu.bank.domain.model.DailyWithdrawalLimit;
 import com.devsu.bank.domain.model.Transaction;
 import com.devsu.bank.domain.model.TransactionType;
 import java.math.BigDecimal;
@@ -20,6 +23,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,7 +48,8 @@ class TransactionServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new TransactionService(accountRepository, transactionRepository, FIXED_CLOCK);
+        service = new TransactionService(accountRepository, transactionRepository, FIXED_CLOCK,
+                new DailyWithdrawalLimit(new BigDecimal("1000")));
         account = Account.builder()
                 .id(1L)
                 .accountNumber("478758")
@@ -117,6 +122,39 @@ class TransactionServiceTest {
                 () -> service.create("478758", TransactionType.DEPOSIT, BigDecimal.ZERO));
         assertThrows(BusinessRuleException.class,
                 () -> service.create("478758", TransactionType.WITHDRAWAL, new BigDecimal("-5.00")));
+    }
+
+    @Test
+    void withdrawalAboveTheDailyLimitIsRejected() {
+        lastBalanceIs("5000.00");
+        withdrawnToday("800.00");
+
+        DailyLimitExceededException ex = assertThrows(DailyLimitExceededException.class,
+                () -> service.create("478758", TransactionType.WITHDRAWAL, new BigDecimal("300.00")));
+
+        assertEquals("Cupo diario Excedido", ex.getMessage());
+        verify(transactionRepository, never()).save(any());
+    }
+
+    @Test
+    void withdrawalWithinTheDailyLimitIsAccepted() {
+        lastBalanceIs("5000.00");
+        withdrawnToday("800.00");
+        saveReturnsArgument();
+
+        Transaction result = service.create("478758", TransactionType.WITHDRAWAL, new BigDecimal("200.00"));
+
+        assertMoney("4800.00", result.getBalance());
+    }
+
+    private void withdrawnToday(String amount) {
+        Transaction earlier = Transaction.builder()
+                .id(8L)
+                .transactionType(TransactionType.WITHDRAWAL)
+                .amount(new BigDecimal(amount).negate())
+                .account(account)
+                .build();
+        when(transactionRepository.findByAccountIdAndDateBetween(eq(1L), any(), any())).thenReturn(List.of(earlier));
     }
 
     private void lastBalanceIs(String balance) {

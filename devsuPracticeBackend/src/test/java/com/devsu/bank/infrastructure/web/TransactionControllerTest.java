@@ -77,7 +77,7 @@ class TransactionControllerTest {
                                 {"accountNumber": "", "transactionType": "DEPOSIT", "amount": 0}
                                 """))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.detail").value("Validation failed"))
+                .andExpect(jsonPath("$.detail").value("Datos inválidos"))
                 .andExpect(jsonPath("$.errors.accountNumber").exists())
                 .andExpect(jsonPath("$.errors.amount").exists());
     }

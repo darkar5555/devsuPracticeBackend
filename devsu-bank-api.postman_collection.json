@@ -1,0 +1,225 @@
+{
+  "info": {
+    "name": "Devsu Bank API",
+    "description": "Clientes, cuentas, movimientos y reportes. Ejecutar en orden: cada carpeta crea sus propios datos de prueba y los elimina al final, asi que puede correrse varias veces sobre la base inicial de BaseDatos.sql.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api" },
+    { "key": "customerId", "value": "" },
+    { "key": "accountId", "value": "" },
+    { "key": "transactionId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "01 Clientes",
+      "item": [
+        {
+          "name": "Listar clientes",
+          "request": { "method": "GET", "url": "{{baseUrl}}/clientes" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('200', () => pm.response.to.have.status(200));", "pm.test('devuelve una lista', () => pm.expect(pm.response.json()).to.be.an('array'));"] } }]
+        },
+        {
+          "name": "Obtener cliente 1",
+          "request": { "method": "GET", "url": "{{baseUrl}}/clientes/1" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('200', () => pm.response.to.have.status(200));", "pm.test('es Jose Lema', () => pm.expect(pm.response.json().name).to.eql('Jose Lema'));"] } }]
+        },
+        {
+          "name": "Crear cliente",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/clientes",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Cliente Postman\",\n  \"gender\": \"FEMALE\",\n  \"age\": 30,\n  \"identification\": \"1710000099\",\n  \"address\": \"Av. Siempre Viva 123\",\n  \"phone\": \"099999999\",\n  \"password\": \"clave123\",\n  \"status\": true\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('201', () => pm.response.to.have.status(201));", "pm.test('no devuelve la contrasena', () => pm.expect(pm.response.json()).to.not.have.property('password'));", "pm.collectionVariables.set('customerId', pm.response.json().id);"] } }]
+        },
+        {
+          "name": "Crear cliente duplicado (409)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/clientes",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Otro\",\n  \"gender\": \"MALE\",\n  \"age\": 40,\n  \"identification\": \"1710000099\",\n  \"address\": \"Calle 1\",\n  \"phone\": \"098888888\",\n  \"password\": \"clave123\",\n  \"status\": true\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('409', () => pm.response.to.have.status(409));", "pm.test('mensaje', () => pm.expect(pm.response.json().detail).to.include('Ya existe'));"] } }]
+        },
+        {
+          "name": "Crear cliente invalido (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/clientes",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"\",\n  \"gender\": \"MALE\",\n  \"age\": 200,\n  \"identification\": \"\",\n  \"address\": \"x\",\n  \"phone\": \"1\",\n  \"password\": \"12\",\n  \"status\": true\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('400', () => pm.response.to.have.status(400));", "pm.test('errores por campo', () => pm.expect(pm.response.json().errors).to.have.property('name'));"] } }]
+        },
+        {
+          "name": "Actualizar cliente (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/clientes/{{customerId}}",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Cliente Postman Editado\",\n  \"gender\": \"FEMALE\",\n  \"age\": 31,\n  \"identification\": \"1710000099\",\n  \"address\": \"Av. Siempre Viva 456\",\n  \"phone\": \"099999998\",\n  \"status\": true\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('200', () => pm.response.to.have.status(200));", "pm.test('nombre actualizado', () => pm.expect(pm.response.json().name).to.eql('Cliente Postman Editado'));"] } }]
+        },
+        {
+          "name": "Desactivar cliente (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/clientes/{{customerId}}",
+            "body": { "mode": "raw", "raw": "{\n  \"status\": false\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('200', () => pm.response.to.have.status(200));", "pm.test('solo cambio el estado', () => { const c = pm.response.json(); pm.expect(c.status).to.eql(false); pm.expect(c.name).to.eql('Cliente Postman Editado'); });"] } }]
+        },
+        {
+          "name": "Cliente inexistente (404)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/clientes/99999" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('404', () => pm.response.to.have.status(404));"] } }]
+        }
+      ]
+    },
+    {
+      "name": "02 Cuentas",
+      "item": [
+        {
+          "name": "Listar cuentas",
+          "request": { "method": "GET", "url": "{{baseUrl}}/cuentas" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('200', () => pm.response.to.have.status(200));", "pm.test('incluye el nombre del cliente', () => pm.expect(pm.response.json()[0]).to.have.property('customerName'));"] } }]
+        },
+        {
+          "name": "Crear cuenta",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/cuentas",
+            "body": { "mode": "raw", "raw": "{\n  \"accountNumber\": \"999001\",\n  \"accountType\": \"SAVINGS\",\n  \"initialBalance\": 100,\n  \"status\": true,\n  \"customerId\": {{customerId}}\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('201', () => pm.response.to.have.status(201));", "pm.collectionVariables.set('accountId', pm.response.json().id);"] } }]
+        },
+        {
+          "name": "Obtener cuenta",
+          "request": { "method": "GET", "url": "{{baseUrl}}/cuentas/{{accountId}}" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('200', () => pm.response.to.have.status(200));", "pm.test('numero 999001', () => pm.expect(pm.response.json().accountNumber).to.eql('999001'));"] } }]
+        },
+        {
+          "name": "Actualizar cuenta (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/cuentas/{{accountId}}",
+            "body": { "mode": "raw", "raw": "{\n  \"accountNumber\": \"999001\",\n  \"accountType\": \"CHECKING\",\n  \"initialBalance\": 100,\n  \"status\": true\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('200', () => pm.response.to.have.status(200));", "pm.test('tipo corriente', () => pm.expect(pm.response.json().accountType).to.eql('CHECKING'));"] } }]
+        },
+        {
+          "name": "Cambiar estado (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/cuentas/{{accountId}}",
+            "body": { "mode": "raw", "raw": "{\n  \"status\": true\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('200', () => pm.response.to.have.status(200));"] } }]
+        }
+      ]
+    },
+    {
+      "name": "03 Movimientos",
+      "item": [
+        {
+          "name": "Listar movimientos",
+          "request": { "method": "GET", "url": "{{baseUrl}}/movimientos" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('200', () => pm.response.to.have.status(200));"] } }]
+        },
+        {
+          "name": "Deposito de 2000",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/movimientos",
+            "body": { "mode": "raw", "raw": "{\n  \"accountNumber\": \"999001\",\n  \"transactionType\": \"DEPOSIT\",\n  \"amount\": 2000\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('201', () => pm.response.to.have.status(201));", "pm.test('saldo 2100', () => pm.expect(Number(pm.response.json().balance)).to.eql(2100));", "pm.collectionVariables.set('transactionId', pm.response.json().id);"] } }]
+        },
+        {
+          "name": "Retiro de 1500 (Cupo diario Excedido)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/movimientos",
+            "body": { "mode": "raw", "raw": "{\n  \"accountNumber\": \"999001\",\n  \"transactionType\": \"WITHDRAWAL\",\n  \"amount\": 1500\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('422', () => pm.response.to.have.status(422));", "pm.test('mensaje', () => pm.expect(pm.response.json().detail).to.eql('Cupo diario Excedido'));"] } }]
+        },
+        {
+          "name": "Retiro sobre cuenta en cero (Saldo no disponible)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/movimientos",
+            "body": { "mode": "raw", "raw": "{\n  \"accountNumber\": \"496825\",\n  \"transactionType\": \"WITHDRAWAL\",\n  \"amount\": 10\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('422', () => pm.response.to.have.status(422));", "pm.test('mensaje', () => pm.expect(pm.response.json().detail).to.eql('Saldo no disponible'));"] } }]
+        },
+        {
+          "name": "Actualizar ultimo movimiento (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/movimientos/{{transactionId}}",
+            "body": { "mode": "raw", "raw": "{\n  \"transactionType\": \"DEPOSIT\",\n  \"amount\": 1000\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('200', () => pm.response.to.have.status(200));", "pm.test('saldo recalculado 1100', () => pm.expect(Number(pm.response.json().balance)).to.eql(1100));"] } }]
+        },
+        {
+          "name": "Obtener movimiento",
+          "request": { "method": "GET", "url": "{{baseUrl}}/movimientos/{{transactionId}}" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('200', () => pm.response.to.have.status(200));"] } }]
+        },
+        {
+          "name": "Eliminar movimiento",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/movimientos/{{transactionId}}" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('204', () => pm.response.to.have.status(204));"] } }]
+        }
+      ]
+    },
+    {
+      "name": "04 Reportes",
+      "item": [
+        {
+          "name": "Estado de cuenta (JSON + PDF base64)",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/reportes?fecha=2022-02-01,2022-02-28&cliente=2", "host": ["{{baseUrl}}"], "path": ["reportes"], "query": [{ "key": "fecha", "value": "2022-02-01,2022-02-28" }, { "key": "cliente", "value": "2" }] } },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('200', () => pm.response.to.have.status(200));", "const r = pm.response.json();", "pm.test('dos cuentas de Marianela', () => pm.expect(r.accounts.length).to.eql(2));", "pm.test('trae el PDF en base64', () => pm.expect(r.pdfBase64.length).to.be.above(100));"] } }]
+        },
+        {
+          "name": "Rango invertido (422)",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/reportes?fecha=2022-02-28,2022-02-01&cliente=2", "host": ["{{baseUrl}}"], "path": ["reportes"], "query": [{ "key": "fecha", "value": "2022-02-28,2022-02-01" }, { "key": "cliente", "value": "2" }] } },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('422', () => pm.response.to.have.status(422));"] } }]
+        },
+        {
+          "name": "Cliente inexistente (404)",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/reportes?fecha=2022-02-01,2022-02-28&cliente=99999", "host": ["{{baseUrl}}"], "path": ["reportes"], "query": [{ "key": "fecha", "value": "2022-02-01,2022-02-28" }, { "key": "cliente", "value": "99999" }] } },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('404', () => pm.response.to.have.status(404));"] } }]
+        }
+      ]
+    },
+    {
+      "name": "05 Limpieza",
+      "item": [
+        {
+          "name": "Eliminar cuenta de prueba",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/cuentas/{{accountId}}" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('204', () => pm.response.to.have.status(204));"] } }]
+        },
+        {
+          "name": "Eliminar cliente de prueba",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/clientes/{{customerId}}" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('204', () => pm.response.to.have.status(204));"] } }]
+        }
+      ]
+    }
+  ]
+}

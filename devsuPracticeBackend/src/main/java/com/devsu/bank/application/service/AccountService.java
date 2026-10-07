@@ -8,7 +8,9 @@ import com.devsu.bank.domain.exception.DuplicateResourceException;
 import com.devsu.bank.domain.exception.ResourceNotFoundException;
 import com.devsu.bank.domain.model.Account;
 import com.devsu.bank.domain.model.Customer;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +26,7 @@ public class AccountService {
 
     public Account create(Account account, Long customerId) {
         Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new ResourceNotFoundException("Customer " + customerId + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente " + customerId + " no encontrado"));
         ensureAccountNumberIsFree(account.getAccountNumber());
         account.setCustomer(customer);
         return accountRepository.save(account);
@@ -45,14 +47,27 @@ public class AccountService {
         if (!account.getAccountNumber().equals(changes.getAccountNumber())) {
             ensureAccountNumberIsFree(changes.getAccountNumber());
         }
-        if (account.getInitialBalance().compareTo(changes.getInitialBalance()) != 0
-                && transactionRepository.findLastByAccountId(id).isPresent()) {
-            throw new BusinessRuleException("Initial balance cannot change once the account has transactions");
-        }
+        ensureInitialBalanceCanChange(account, changes.getInitialBalance());
         account.setAccountNumber(changes.getAccountNumber());
         account.setAccountType(changes.getAccountType());
         account.setInitialBalance(changes.getInitialBalance());
         account.setStatus(changes.getStatus());
+        return accountRepository.save(account);
+    }
+
+    public Account patch(Long id, Account changes) {
+        Account account = getAccount(id);
+        if (changes.getAccountNumber() != null
+                && !changes.getAccountNumber().equals(account.getAccountNumber())) {
+            ensureAccountNumberIsFree(changes.getAccountNumber());
+        }
+        if (changes.getInitialBalance() != null) {
+            ensureInitialBalanceCanChange(account, changes.getInitialBalance());
+        }
+        Optional.ofNullable(changes.getAccountNumber()).ifPresent(account::setAccountNumber);
+        Optional.ofNullable(changes.getAccountType()).ifPresent(account::setAccountType);
+        Optional.ofNullable(changes.getInitialBalance()).ifPresent(account::setInitialBalance);
+        Optional.ofNullable(changes.getStatus()).ifPresent(account::setStatus);
         return accountRepository.save(account);
     }
 
@@ -63,12 +78,20 @@ public class AccountService {
 
     private Account getAccount(Long id) {
         return accountRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Account " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Cuenta " + id + " no encontrada"));
+    }
+
+    private void ensureInitialBalanceCanChange(Account account, BigDecimal newInitialBalance) {
+        if (account.getInitialBalance().compareTo(newInitialBalance) != 0
+                && transactionRepository.findLastByAccountId(account.getId()).isPresent()) {
+            throw new BusinessRuleException(
+                    "El saldo inicial no se puede cambiar cuando la cuenta ya tiene movimientos");
+        }
     }
 
     private void ensureAccountNumberIsFree(String accountNumber) {
         if (accountRepository.existsByAccountNumber(accountNumber)) {
-            throw new DuplicateResourceException("Account " + accountNumber + " already exists");
+            throw new DuplicateResourceException("Ya existe una cuenta con el número " + accountNumber);
         }
     }
 }
