@@ -45,6 +45,8 @@ CREATE TABLE transaction (
     CONSTRAINT fk_transaction_account     FOREIGN KEY (account_id) REFERENCES account (account_id)
 );
 
+CREATE INDEX idx_transaction_account_date ON transaction (account_id, date);
+
 -- Seed data
 
 INSERT INTO customer (name, gender, age, identification, address, phone, password, status) VALUES
